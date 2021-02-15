@@ -1,55 +1,48 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+import json
+import numpy as np
+import pandas as pd
+from urllib.error import URLError, HTTPError
+from urllib.request import urlopen
+import eia
 
-from eia import browser
 
-"""
-One common operation between different branches of what is essentially the
-same data is to look strictly at "marginal" values.  In this example, we pull
-all residential sector usage of "Other Fuels" from every AEO 2016 scenario.
-From there, it's trivial to create a marginal dataset using the pandas library.
-"""
+def retrieve_time_series(api, series_ID):
+    """
+    Return the time series dataframe, based on API and unique Series ID
+    """
+    # Retrieve Data By Series ID
+    series_search = api.data_by_series(series=series_ID)
+    # Create a pandas dataframe from the retrieved time series
+    hh_spot = pd.DataFrame(series_search)
+    return hh_spot
 
-from eia import browser
 
-if __name__ == '__main__':
-    # YOU WILL NEED TO CHANGE THE APIKEY BELOW
-    APIKEY = "http://www.eia.gov/opendata/register.cfm"
-    aeo = browser.AEO(APIKEY)
+def main():
+    """
+    Run main script
+    """
+    try:
+        # Create EIA API using your specific API key
+        api_key = "xxxxx"
+        api = eia.API(api_key)
+        # Declare desired series ID
+        series_ID = 'NG.RNGWHHD.W'
+        hh_spot = retrieve_time_series(api, series_ID)
+        # Print the returned dataframe df
+        print(type(hh_spot))
+        return hh_spot
+    except Exception as e:
+        print("error", e)
+        return pd.DataFrame(columns=None)
 
-    # Get Residential Sector Key indicators and consumption :
-    # http://www.eia.gov/opendata/qb.php?category=2102635
-    datapath = ["Annual Energy Outlook 2016",
-                ".*", # Datapaths are Regex powered
-                "Residential Sector",
-                "Residential Sector Key Indicators and Consumption"
-                ]
 
-    for _ in aeo.browse_path(datapath):
-        # This loop iterates through every possible endpoint following
-        # the regular expression path above.  i.e.
-        # AEO 2016 > {AEO SCENARIO} > ... > Residential Sector Key Indicators
-        meta = {
-            # Browser subclasses contain special attributes specific to the
-            # EIA defined datasets they represent.  For AEO, we always have
-            # some notion of a "scenario".
-            "scenario" : aeo.scenario,
-            "sector" : "Residential"
-            }
-        aeo.flag_re(
-            'CNSM_NA_RES_NA_OFU_NA_USA_QBTU.A', # Flag a series for export
-            'series_id', # indicate which field you're flagging on
-            meta)  # Attach any meta information associated with business logic
-
-    # Calling the export method on a browser instance retrieves data using the
-    # series API.  Per the docs, every 100 series are exported using a single
-    # request to save on API calls.
-    data = aeo.export()
-
-    # Now we can compute a quick marginal value against the "Reference Case"
-    data.set_index(['scenario', 'period'], inplace=True)
-    reference = data.loc['Reference']
-    delta = data.groupby(level = 0, as_index=False).apply(
-        lambda x : x['value'] - reference['value']
-        ).reset_index(level=0, drop=True)
-    data['delta_reference'] = delta
+hh_spot = main()
+hh_spot = hh_spot.rename(
+    {'Henry Hub Natural Gas Spot Price, Weekly (Dollars per Million Btu)': 'hh_spot'}, axis='columns')
+hh_spot = hh_spot.reset_index()
+hh_spot['index'] = pd.to_datetime(hh_spot['index'].str[:-3], format='%Y %m%d')
+hh_spot['Date'] = pd.to_datetime(hh_spot['index'])
+hh_spot.set_index('Date', inplace=True)  # setting index column
+hh_spot = hh_spot.loc['2000-01-01':, ['hh_spot']]  # setting date range
+hh_spot = hh_spot.astype(float)
+print(hh_spot)
