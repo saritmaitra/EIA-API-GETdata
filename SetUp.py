@@ -4,7 +4,7 @@ setup(
     name='eia-python',
     version='1.22',
     packages=['eia'],
-    url='https://github.com/mra1385/eia-python',
+    url='https://github.com/saritmaitra/EIA-API-GETdata/tree/main',
     license='BSD',
     author='Mike Azar',
     author_email='mikeazar@gmail.com',
