@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='eia-python',
-    version='1.22',
+    version='1.13',
     packages=['eia'],
     url='https://github.com/saritmaitra/EIA-API-GETdata/tree/main',
     license='BSD',
