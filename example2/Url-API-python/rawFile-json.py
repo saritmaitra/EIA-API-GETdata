@@ -1,5 +1,8 @@
 import requests
 
+x = requests.get("https://sarit-maitra.medium.com/")
+print(x.status_code)
+
 # XML format
 link = "http://api.eia.gov/series/?series_id=NG.N9010US2.M&api_key=xxxxx&out=xml"
 f = requests.get(link)
