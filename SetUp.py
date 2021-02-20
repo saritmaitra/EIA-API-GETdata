@@ -6,7 +6,7 @@ setup(
     packages=['eia'],
     url='https://github.com/saritmaitra/EIA-API-GETdata/tree/main',
     license='BSD',
-    author='Mike Azar',
-    author_email='mikeazar@gmail.com',
+    author='Sarit Maitra',
+    author_email='sarit.maitrar@gmail.com',
     description='Python Wrapper for the Energy Information Administration (eia) API'
 )
