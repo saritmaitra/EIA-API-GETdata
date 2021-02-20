@@ -5,6 +5,7 @@ import eia
 # Json format
 link = "http://api.eia.gov/series/?series_id=NG.N9010US2.M&api_key=xxxx&out=json"
 f = requests.get(link)
+
 print(f.text)
 
 
@@ -38,6 +39,7 @@ endDate = '2021-01-01'
 # Pull in data via EIA API
 for i in range(len(PADD_KEY)):
     url = 'http://api.eia.gov/series/?api_key=' + api_key +'&series_id=' + PADD_KEY[i]
+    
     r = requests.get(url)
     json_data = r.json()
     
@@ -48,5 +50,28 @@ for i in range(len(PADD_KEY)):
     
     df = pd.DataFrame(json_data.get('series')[0].get('data'),
                       columns = ['Date', PADD_NAMES[i]])
+    
     df.set_index('Date', drop=True, inplace=True)
+    
     final_data.append(df)
+    
+    
+# Combine all the data into one dataframe
+crude = pd.concat(final_data, axis=1)
+
+# Create date as datetype datatype
+crude['Year'] = crude.index.astype(str).str[:4]
+
+crude['Month'] = crude.index.astype(str).str[4:]
+
+crude['Day'] = 1
+
+crude['Date'] = pd.to_datetime(crude[['Year','Month','Day']])
+
+crude.set_index('Date',drop=True,inplace=True)
+
+crude.sort_index(inplace=True)
+
+crude = crude[startDate:endDate]
+
+crude = crude.iloc[:,:5]
