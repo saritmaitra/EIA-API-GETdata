@@ -8,9 +8,9 @@ with open("package_info.json", "r") as f:
 def install_sort(package):
     return package['analytics']['30d']
     
-data = [item for item in data if 'video' in item ['desc']]
+data = [item for item in data if 'book' in item ['desc']]
 data.sort(key=install_sort, reverse = True)
 
-data_str = json.dumps(data, indent=2)
+data_str = json.dumps(data[:5], indent=2)
 
 print(data_str)
