@@ -3,7 +3,7 @@
 
 #example 1
 def get_clients(user):
-    """List of clients"""
+    #List of clients
     assert is_superuser(user), "User is not a member of superuser group"
     return db.Lookup("Clients")
     
@@ -13,7 +13,7 @@ def get_clients(user):
 
 #Best practice
 def get_clients(user):
-    """List of clients"""
+    #List of clients
     if not is_superuser(user):
         raise PermissionError ("User is not a member of superuser group")
     return db.Lookup("Clients")
